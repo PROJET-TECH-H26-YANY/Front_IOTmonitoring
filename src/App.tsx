@@ -6,7 +6,8 @@ import { AuthProvider, useAuth } from "./context/AuthContext";
 
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import Dashboard from "./pages/Dashboard";
+import MainTabs from "./components/MainTabs";
+
 
 const Stack = createNativeStackNavigator();
 
@@ -30,7 +31,7 @@ function Router() {
             <Stack.Screen name="Register" component={Register} />
           </>
         ) : (
-          <Stack.Screen name="Dashboard" component={Dashboard} />
+          <Stack.Screen name="MainTabs" component={MainTabs} />
         )}
       </Stack.Navigator>
     </NavigationContainer>
