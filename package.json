@@ -1,6 +1,6 @@
 {
   "name": "iot-monitoring-front",
-  "main": "expo-router/entry",
+  "main": "src/main.tsx",
   "version": "1.0.0",
   "scripts": {
     "start": "expo start",
