@@ -5,6 +5,7 @@ import StudentLive from "../pages/StudentLive";
 import ManageStudents from "../pages/ManageStudents";
 import SystemStatus from "../pages/SystemStatus";
 import Dashboard from "../pages/Dashboard";
+import History from "../pages/History";
 
 const Tab = createBottomTabNavigator();
 
@@ -33,6 +34,11 @@ export default function MainTabs() {
         component={SystemStatus}
         options={{ title: "Système" }}
       />
+        <Tab.Screen
+          name="History"
+          component={History}
+          options={{ title: "Historique" }}
+        />
       <Tab.Screen
         name="Profil"
         component={Dashboard}
