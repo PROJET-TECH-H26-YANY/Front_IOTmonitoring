@@ -5,6 +5,7 @@ import {
   StyleSheet,
   FlatList,
   TouchableOpacity,
+  RefreshControl,
   Alert,
 } from "react-native";
 import { dashboardService } from "../services/api";
@@ -12,6 +13,7 @@ import { SessionData } from "../types";
 
 export default function StudentLive() {
   const [liveSessions, setLiveSessions] = useState<SessionData[]>([]);
+  const [refreshing, setRefreshing] = useState(false);
 
   const fetchLive = async () => {
     try {
@@ -20,6 +22,11 @@ export default function StudentLive() {
     } catch (error) {
       console.error("Erreur chargement live", error);
     }
+  };
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchLive();
+    setRefreshing(false);
   };
 
   useEffect(() => {
@@ -43,6 +50,14 @@ export default function StudentLive() {
       <FlatList
         data={liveSessions}
         keyExtractor={(item) => item.sessionId.toString()}
+        refreshControl={
+          <RefreshControl 
+            refreshing={refreshing} 
+            onRefresh={onRefresh} 
+            colors={["#4f46e5"]} 
+            tintColor="#4f46e5" 
+          />
+        }
         renderItem={({ item }) => (
           <View style={styles.card}>
             <View>
