@@ -1,37 +1,68 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView} from "react-native";
 import { useAuth } from "../context/AuthContext";
 
 export default function Dashboard() {
   const { logout, user } = useAuth();
 
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Dashboard</Text>
-      <Text style={styles.subtitle}>Superviseur : {user?.name}</Text>
+return (
+    <ScrollView 
+      contentContainerStyle={styles.container}    
+    >
+      <Text style={styles.title}>Mon Profil</Text>
 
+      <View style={styles.card}>
+        <Text style={styles.label}>Nom complet</Text>
+        <Text style={styles.value}>{user?.name || "Non renseigné"}</Text>
+
+        <Text style={styles.label}>Adresse Email</Text>
+        <Text style={styles.value}>{user?.email || "Non renseignée"}</Text>
+
+        <Text style={styles.label}>ID Superviseur</Text>
+        <Text style={styles.value}>#{user?.id}</Text>
+      </View>
+      
       <TouchableOpacity style={styles.button} onPress={logout}>
         <Text style={styles.buttonText}>Se déconnecter</Text>
       </TouchableOpacity>
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    flexGrow: 1,
     padding: 20,
+    backgroundColor: "#f3f4f6",
+    justifyContent: "center",
   },
-  title: { fontSize: 24, fontWeight: "bold", marginBottom: 10 },
-  subtitle: { fontSize: 16, marginBottom: 30, color: "#374151" },
+  centered: { alignItems: "center" },
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 20,
+    textAlign: "center",
+    color: "#111827",
+  },
+  card: {
+    backgroundColor: "#fff",
+    padding: 20,
+    borderRadius: 10,
+    elevation: 2,
+    marginBottom: 30,
+  },
+  label: { fontSize: 14, color: "#6b7280", marginBottom: 5, fontWeight: "600" },
+  value: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#111827",
+    marginBottom: 15,
+  },
   button: {
     backgroundColor: "#ef4444",
     padding: 15,
     borderRadius: 8,
     alignItems: "center",
-    width: "100%",
   },
-  buttonText: { color: "#ffffff", fontWeight: "bold" },
+  buttonText: { color: "#ffffff", fontWeight: "bold", fontSize: 16 },
 });
