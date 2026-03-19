@@ -58,7 +58,7 @@ export default function History() {
             <Text style={styles.info}>Fin : {formatDate(item.endTime)}</Text>
             
             {item.timeWorked !== undefined && (
-              <Text style={styles.time}>Temps total : {item.timeWorked} min</Text>
+              <Text style={styles.time}>Temps total : {Math.floor(item.timeWorked / 60)} min</Text>
             )}
           </View>
         )}
