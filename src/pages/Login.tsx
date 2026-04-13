@@ -16,13 +16,22 @@ export default function Login({ navigation }: any) {
 
   const { login } = useAuth();
 
-  const handleSubmit = async () => {
-    setError("");
+const handleSubmit = async () => {
+    if (!email || !password) {
+      setError("Veuillez remplir tous les champs.");
+      return;
+    }
+
+    setError(""); 
     try {
-      const response = await authService.login({ email, password });
+      const response = await authService.login({ email: email.trim(), password });
       await login(response.token, response.user);
     } catch (err: any) {
-      setError(err.message || "Email ou mot de passe incorrect");
+      if (err.message.includes("Failed to fetch") || err.message.includes("Network request failed")) {
+        setError("Serveur injoignable. Vérifiez votre connexion.");
+      } else {
+        setError(err.message); 
+      }
     }
   };
 

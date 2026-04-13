@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Lab IoT - Gestion d'Assiduité</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --text-color: #f8fafc;
+            --accent-color: #3b82f6;
+            --accent-glow: rgba(59, 130, 246, 0.5);
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --card-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Arrière-plan animé (Effet IoT) */
+        .background-glow {
+            position: fixed;
+            top: -20%;
+            left: -10%;
+            width: 50vw;
+            height: 50vw;
+            background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+            border-radius: 50%;
+            z-index: -1;
+            filter: blur(80px);
+            animation: float 10s infinite alternate ease-in-out;
+        }
+
+        .background-glow.right {
+            top: 50%;
+            left: auto;
+            right: -10%;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.3) 0%, transparent 70%);
+            animation-delay: -5s;
+        }
+
+        @keyframes float {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        /* Conteneur principal */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Section Hero */
+        header {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding-top: 50px;
+        }
+
+        .badge {
+            background: rgba(255,255,255,0.1);
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            border: 1px solid var(--card-border);
+            color: #94a3b8;
+        }
+
+        h1 {
+            font-size: 4rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            background: linear-gradient(to right, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #cbd5e1;
+            max-width: 600px;
+            margin-bottom: 40px;
+        }
+
+        .cegep-logo {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 40px;
+            opacity: 0.8;
+        }
+
+        /* Section Features (Grille) */
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin: 80px 0 40px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-bottom: 100px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 30px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border-color: var(--accent-color);
+        }
+
+        .card i {
+            font-size: 2.5rem;
+            color: var(--accent-color);
+            margin-bottom: 20px;
+        }
+
+        .card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+
+        .card p {
+            color: #94a3b8;
+            font-size: 0.95rem;
+        }
+
+        /* Section À propos */
+        .about-section {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.8) 100%);
+            border-top: 1px solid var(--card-border);
+            border-bottom: 1px solid var(--card-border);
+            padding: 80px 0;
+            margin-top: 50px;
+        }
+
+        .about-content {
+            display: flex;
+            align-items: center;
+            gap: 50px;
+            flex-wrap: wrap;
+        }
+
+        .about-text {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .tech-stack {
+            flex: 1;
+            min-width: 300px;
+            background: rgba(0,0,0,0.3);
+            padding: 30px;
+            border-radius: 20px;
+            border: 1px solid var(--card-border);
+        }
+
+        .tech-tag {
+            display: inline-block;
+            background: var(--accent-color);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            margin: 5px;
+            font-weight: 600;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 40px;
+            color: #64748b;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            margin-top: 50px;
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2.5rem; }
+            .about-content { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="background-glow"></div>
+    <div class="background-glow right"></div>
+
+    <div class="container">
+        <header>
+            <div class="badge">Projet H26 - Prototype Fonctionnel</div>
+            <h1>Smart Lab IoT</h1>
+            <p class="subtitle">La gestion automatisée et intelligente de l'assiduité en laboratoire. Sécurisé, en temps réel, et conçu pour déjouer la triche.</p>
+            
+            <div class="cegep-logo">
+                <i class="fa-solid fa-graduation-cap"></i> Cégep de Rivière-du-Loup
+            </div>
+            <p style="margin-top: 10px; color: #94a3b8;">Développé par <strong>Yany Boudedja</strong></p>
+        </header>
+
+        <h2 class="section-title">Pourquoi ce prototype ?</h2>
+        <div class="features-grid">
+            
+            <div class="card">
+                <i class="fa-solid fa-id-badge"></i>
+                <h3>Authentification NFC</h3>
+                <p>Oubliez les appels manuels. Les étudiants valident leur présence en une fraction de seconde grâce au lecteur RFID intégré au bureau. Sécurisé et sans friction.</p>
+            </div>
+
+            <div class="card">
+                <i class="fa-solid fa-user-shield"></i>
+                <h3>Algorithme Anti-Triche</h3>
+                <p>Un étudiant pose son sac sur le capteur pour simuler sa présence ? Le système analyse la distance en temps réel et détecte les objets statiques suspects via une logique algorithmique.</p>
+            </div>
+
+            <div class="card">
+                <i class="fa-solid fa-leaf"></i>
+                <h3>Éco-Énergétique</h3>
+                <p>Le capteur ultrasonore se met automatiquement en veille profonde lorsqu'aucune session n'est active. La télémétrie ne démarre que lorsque le poste est occupé.</p>
+            </div>
+
+            <div class="card">
+                <i class="fa-solid fa-chart-line"></i>
+                <h3>Contrôle Professeur</h3>
+                <p>Un tableau de bord web complet permet au superviseur de voir les présences en direct, de recevoir les alertes d'abandon de poste, et de clore des sessions à distance.</p>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="about-section">
+        <div class="container about-content">
+            <div class="about-text">
+                <h2 style="font-size: 2rem; margin-bottom: 20px;">Sous le capot</h2>
+                <p style="color: #cbd5e1; margin-bottom: 15px;">Ce prototype n'est pas qu'un simple boîtier. C'est une architecture système complète de bout en bout, pensée pour l'industrie.</p>
+                <p style="color: #cbd5e1;">Le matériel communique avec un serveur central via le protocole IoT standard (MQTT). Un flux Node-RED agit comme le "cerveau" pour filtrer la triche, avant de transmettre les données à notre propre API sécurisée.</p>
+            </div>
+            
+            <div class="tech-stack">
+                <h3 style="margin-bottom: 15px; border-bottom: 1px solid var(--card-border); padding-bottom: 10px;">Technologies Utilisées</h3>
+                <div style="margin-top: 15px;">
+                    <span class="tech-tag">C++ / ESP32</span>
+                    <span class="tech-tag">Capteur A0221AU (UART)</span>
+                    <span class="tech-tag">Lecteur RC522 (SPI)</span>
+                    <span class="tech-tag">Écran OLED I2C</span>
+                    <span class="tech-tag">MQTT (Mosquitto)</span>
+                    <span class="tech-tag">Node-RED</span>
+                    <span class="tech-tag">Node.js / Express</span>
+                    <span class="tech-tag">TypeScript</span>
+                    <span class="tech-tag">MariaDB / Drizzle ORM</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 - Yany Boudedja | Projet IoT - Cégep de Rivière-du-Loup</p>
+        <p style="font-size: 0.8rem; margin-top: 5px;">Conçu avec passion (et beaucoup de café).</p>
+    </footer>
+
+</body>
+</html>

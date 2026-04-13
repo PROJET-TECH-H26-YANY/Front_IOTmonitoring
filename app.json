@@ -12,7 +12,8 @@
     },
     "android": {
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.skandy.iotmonitoringfront"
     },
     "web": {
       "output": "static"
@@ -20,6 +21,11 @@
     "plugins": [],
     "experiments": {
       "reactCompiler": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "0785bd61-4ea5-4845-a79d-88a9f74c9224"
+      }
     }
   }
 }

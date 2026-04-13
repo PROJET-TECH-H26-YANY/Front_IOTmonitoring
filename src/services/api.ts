@@ -28,7 +28,8 @@ const request = async <T>(
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.message || `Erreur ${response.status}`);
+    const errorMessage = errorData.error || errorData.message || `Erreur ${response.status}`;
+    throw new Error(errorMessage);
   }
 
   if (response.status === 204) return null as unknown as T;
