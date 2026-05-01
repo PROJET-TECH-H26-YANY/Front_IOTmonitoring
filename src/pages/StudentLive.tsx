@@ -10,6 +10,10 @@ import {
 } from "react-native";
 import { dashboardService } from "../services/api";
 import { SessionData } from "../types";
+import Paho from "paho-mqtt";
+
+const MQTT_HOST = process.env.EXPO_PUBLIC_MQTT_HOST || "185.53.209.197";
+const MQTT_PORT = Number(process.env.EXPO_PUBLIC_MQTT_PORT) || 9001;
 
 export default function StudentLive() {
   const [liveSessions, setLiveSessions] = useState<SessionData[]>([]);
@@ -23,6 +27,7 @@ export default function StudentLive() {
       console.error("Erreur chargement live", error);
     }
   };
+
   const onRefresh = async () => {
     setRefreshing(true);
     await fetchLive();
@@ -37,10 +42,34 @@ export default function StudentLive() {
     try {
       await dashboardService.forceClose(id);
       Alert.alert("Succès", "Session fermée.");
-      fetchLive(); 
+      fetchLive();
     } catch (error) {
       Alert.alert("Erreur", "Impossible de fermer la session");
     }
+  };
+
+  // Nouvelle fonction pour déclencher le buzzer via MQTT
+  const triggerBuzzer = (macAddress: string) => {
+    // S'il n'y a pas d'adresse MAC fournie par ton API pour cette session
+    if (!macAddress) {
+      Alert.alert("Erreur", "Adresse MAC inconnue pour cet élève.");
+      return;
+    }
+
+    const client = new Paho.Client(MQTT_HOST, MQTT_PORT, `Cmd_${Date.now()}`);
+
+    client.connect({
+      useSSL: false,
+      onSuccess: () => {
+        const message = new Paho.Message(JSON.stringify({ buzzer: true }));
+        message.destinationName = `labo/device/${macAddress}/command`;
+        client.send(message);
+
+        // On se déconnecte proprement après l'envoi
+        setTimeout(() => client.disconnect(), 500);
+      },
+      onFailure: (err) => console.log("Erreur envoi Buzzer:", err),
+    });
   };
 
   return (
@@ -51,11 +80,11 @@ export default function StudentLive() {
         data={liveSessions}
         keyExtractor={(item) => item.sessionId.toString()}
         refreshControl={
-          <RefreshControl 
-            refreshing={refreshing} 
-            onRefresh={onRefresh} 
-            colors={["#4f46e5"]} 
-            tintColor="#4f46e5" 
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={["#4f46e5"]}
+            tintColor="#4f46e5"
           />
         }
         renderItem={({ item }) => (
@@ -66,12 +95,23 @@ export default function StudentLive() {
                 Début: {new Date(item.startTime).toLocaleTimeString()}
               </Text>
             </View>
-            <TouchableOpacity
-              style={styles.closeBtn}
-              onPress={() => handleForceClose(item.sessionId)}
-            >
-              <Text style={styles.closeBtnText}>Fermer</Text>
-            </TouchableOpacity>
+
+            {/* Zone des boutons */}
+            <View style={styles.actionRow}>
+              <TouchableOpacity
+                style={styles.buzzerBtn}
+                onPress={() => triggerBuzzer(item.macAddress as any)}
+              >
+                <Text style={styles.btnText}> Rappel</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.closeBtn}
+                onPress={() => handleForceClose(item.sessionId)}
+              >
+                <Text style={styles.btnText}> Fermer</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         )}
         ListEmptyComponent={
@@ -97,7 +137,25 @@ const styles = StyleSheet.create({
   },
   name: { fontSize: 18, fontWeight: "bold" },
   info: { color: "#6b7280", marginTop: 5 },
-  closeBtn: { backgroundColor: "#ef4444", padding: 8, borderRadius: 5 },
-  closeBtnText: { color: "#fff", fontWeight: "bold" },
+  actionRow: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  buzzerBtn: {
+    backgroundColor: "#f59e0b",
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 5,
+  },
+  closeBtn: {
+    backgroundColor: "#ef4444",
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 5,
+  },
+  btnText: {
+    color: "#fff",
+    fontWeight: "bold",
+  },
   empty: { textAlign: "center", marginTop: 50, color: "#9ca3af" },
 });

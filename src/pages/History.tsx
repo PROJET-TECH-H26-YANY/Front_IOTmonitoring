@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, FlatList, ActivityIndicator } from "react-native";
+import React, { useEffect, useState, useCallback } from "react";
+import { View, Text, StyleSheet, FlatList, ActivityIndicator, RefreshControl } from "react-native";
 import { dashboardService } from "../services/api";
 import { SessionData } from "../types";
 
 export default function History() {
   const [history, setHistory] = useState<SessionData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   const fetchHistory = async () => {
     try {
@@ -17,6 +18,12 @@ export default function History() {
       setLoading(false);
     }
   };
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchHistory();
+    setRefreshing(false);
+  }, []);
 
   useEffect(() => {
     fetchHistory();
@@ -45,6 +52,12 @@ export default function History() {
       <FlatList
         data={history}
         keyExtractor={(item) => item.sessionId.toString()}
+        refreshControl={
+          <RefreshControl 
+            refreshing={refreshing} 
+            onRefresh={onRefresh} 
+          />
+        }
         renderItem={({ item }) => (
           <View style={styles.card}>
             <View style={styles.headerCard}>
