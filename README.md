@@ -86,4 +86,4 @@ Pour valider que le système complet fonctionne (Étape 7 du rapport de mise en 
 ### C. Dépannage rapide (Troubleshooting)
 - **Si l'application affiche "Network Error" :** Vérifiez que l'adresse IP dans le fichier `.env` du front-end est bien celle de l'ordinateur qui héberge l'API (pas `localhost` si vous êtes sur un téléphone physique).
 - **Si l'ESP32 ne réagit pas :** Vérifiez que le port `1883` est bien ouvert et que Mosquitto tourne (`sudo systemctl status mosquitto`).
-Oplaod une ```version apk eas build -p android --profile preview
+Oplaod une version apk  ```eas build -p android --profile preview
