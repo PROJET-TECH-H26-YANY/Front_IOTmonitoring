@@ -48,7 +48,6 @@ export default function StudentLive() {
     }
   };
 
-  // Nouvelle fonction pour déclencher le buzzer via MQTT
   const triggerBuzzer = (macAddress: string) => {
     // S'il n'y a pas d'adresse MAC fournie par ton API pour cette session
     if (!macAddress) {
@@ -59,10 +58,14 @@ export default function StudentLive() {
     const client = new Paho.Client(MQTT_HOST, MQTT_PORT, `Cmd_${Date.now()}`);
 
     client.connect({
-      useSSL: false,
+      useSSL: true,
       onSuccess: () => {
-        const message = new Paho.Message(JSON.stringify({ buzzer: true }));
-        message.destinationName = `labo/device/${macAddress}/command`;
+        const message = new Paho.Message(JSON.stringify({
+          command: "BUZZER_ON",
+          mac: macAddress
+        }));
+        
+        message.destinationName = "labo/app/command";
         client.send(message);
 
         // On se déconnecte proprement après l'envoi
@@ -71,7 +74,6 @@ export default function StudentLive() {
       onFailure: (err) => console.log("Erreur envoi Buzzer:", err),
     });
   };
-
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Élèves en direct</Text>

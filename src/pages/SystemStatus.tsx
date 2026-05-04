@@ -20,7 +20,7 @@ export default function SystemStatus() {
     };
 
     client.connect({
-      useSSL: false,
+      useSSL: true,
       onSuccess: () => {
         client.subscribe("labo/system/status");
       },

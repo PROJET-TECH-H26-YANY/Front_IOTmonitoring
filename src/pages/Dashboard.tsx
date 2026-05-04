@@ -9,7 +9,7 @@ return (
     <ScrollView 
       contentContainerStyle={styles.container}    
     >
-      <Text style={styles.title}>Mon Profil</Text>
+      <Text style={styles.title}>Mon Profil oio</Text>
 
       <View style={styles.card}>
         <Text style={styles.label}>Nom complet</Text>
