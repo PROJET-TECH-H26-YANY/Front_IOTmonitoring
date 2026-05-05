@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   RefreshControl,
   Alert,
+  TextInput,
 } from "react-native";
 import { dashboardService } from "../services/api";
 import { SessionData } from "../types";
@@ -14,10 +15,12 @@ import Paho from "paho-mqtt";
 
 const MQTT_HOST = process.env.EXPO_PUBLIC_MQTT_HOST || "185.53.209.197";
 const MQTT_PORT = Number(process.env.EXPO_PUBLIC_MQTT_PORT) || 9001;
+const client = new Paho.Client(MQTT_HOST, MQTT_PORT, `Cmd_${Date.now()}`);
 
 export default function StudentLive() {
   const [liveSessions, setLiveSessions] = useState<SessionData[]>([]);
   const [refreshing, setRefreshing] = useState(false);
+  const [examTime, setExamTime] = useState("10");
 
   const fetchLive = async () => {
     try {
@@ -48,14 +51,54 @@ export default function StudentLive() {
     }
   };
 
+const startExamMode = () => {
+    if (liveSessions.length === 0) {
+      Alert.alert("Attention", "Aucun élève connecté.");
+      return;
+    }
+
+    // NOUVEAU : On prépare un tableau contenant le MAC ET le texte à restaurer !
+    const studentsData = liveSessions.map(session => ({
+      mac: session.macAddress,
+      texteEcran: "ID: " + session.sessionId + " -   " + session.studentName
+    })).filter(s => s.mac);
+
+    const timeInSeconds = parseInt(examTime, 10) || 10;
+
+    const envoyerMessage = () => {
+      const payload = JSON.stringify({
+        command: "START_EXAM",
+        time: timeInSeconds,
+        students: studentsData // On envoie le nouveau tableau riche
+      });
+
+      const mqttMessage = new Paho.Message(payload);
+      mqttMessage.destinationName = "labo/app/command";
+      client.send(mqttMessage);
+      
+      Alert.alert("Examen lancé", `Le chrono de ${timeInSeconds}s a commencé !`);
+
+      setTimeout(() => {
+        if (client.isConnected()) client.disconnect();
+      }, 500);
+    };
+
+    if (client.isConnected()) {
+      envoyerMessage();
+    } else {
+      client.connect({
+        useSSL: true,
+        onSuccess: envoyerMessage,
+        onFailure: (err) => Alert.alert("Erreur", "Impossible de joindre le serveur MQTT.")
+      });
+    }
+  };
+
   const triggerBuzzer = (macAddress: string) => {
-    // S'il n'y a pas d'adresse MAC fournie par ton API pour cette session
     if (!macAddress) {
       Alert.alert("Erreur", "Adresse MAC inconnue pour cet élève.");
       return;
     }
-
-    const client = new Paho.Client(MQTT_HOST, MQTT_PORT, `Cmd_${Date.now()}`);
 
     client.connect({
       useSSL: true,
@@ -68,14 +111,33 @@ export default function StudentLive() {
         message.destinationName = "labo/app/command";
         client.send(message);
 
-        // On se déconnecte proprement après l'envoi
         setTimeout(() => client.disconnect(), 500);
       },
       onFailure: (err) => console.log("Erreur envoi Buzzer:", err),
     });
   };
+
   return (
     <View style={styles.container}>
+
+      <View style={{ flexDirection: 'row', alignItems: 'center', marginVertical: 15, backgroundColor: '#f0f0f0', padding: 10, borderRadius: 8 }}>
+        <Text style={{ fontSize: 16, marginRight: 10 }}> Minuteur (sec) :</Text>
+        
+        <TextInput
+          style={{ backgroundColor: 'white', borderWidth: 1, borderColor: '#ccc', borderRadius: 5, padding: 8, width: 60, textAlign: 'center' }}
+          keyboardType="numeric"
+          value={examTime}
+          onChangeText={setExamTime}
+        />
+
+        <TouchableOpacity 
+          style={{ backgroundColor: '#4f46e5', padding: 10, borderRadius: 5, marginLeft: 15 }}
+          onPress={startExamMode} 
+        >
+          <Text style={{ color: 'white', fontWeight: 'bold' }}>Démarrer l'Examen</Text>
+        </TouchableOpacity>
+      </View>
+      
       <Text style={styles.title}>Élèves en direct</Text>
 
       <FlatList
@@ -98,11 +160,10 @@ export default function StudentLive() {
               </Text>
             </View>
 
-            {/* Zone des boutons */}
             <View style={styles.actionRow}>
               <TouchableOpacity
                 style={styles.buzzerBtn}
-                onPress={() => triggerBuzzer(item.macAddress as any)}
+                onPress={() => triggerBuzzer(item.macAddress as string)}
               >
                 <Text style={styles.btnText}> Rappel</Text>
               </TouchableOpacity>
